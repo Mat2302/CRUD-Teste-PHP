@@ -52,7 +52,7 @@ if (!isset($_SESSION['user']) && !isset($_SESSION['pass']))  {
             <input type="submit" class="btn-cadastra" value="Salvar">
         </form>
     </div>
-    <script src="/CRUD-Teste/Client/Js/script.js"></script>
+    <script src="/CRUD-Teste-PHP/Client/Js/script.js"></script>
 </body>
 </html>
 

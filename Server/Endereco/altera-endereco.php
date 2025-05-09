@@ -77,7 +77,7 @@ try {
             <input type="submit" class="btn-cadastra" value="Salvar">
         </form>
     </div>
-    <script src="/CRUD-Teste/Client/Js/script.js"></script>
+    <script src="/CRUD-Teste-PHP/Client/Js/script.js"></script>
 </body>
 </html>
 <?php

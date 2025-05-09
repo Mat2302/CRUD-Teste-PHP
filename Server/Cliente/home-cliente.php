@@ -27,8 +27,8 @@ $id = $_SESSION['idUser'];
     <div class="container-busca">
         <h2 class="cliente-H2">CRUD - Avaliação</h2>
         <form>
-            <input type="button" value="Cadastrar Cliente" class="botao-home" onclick="window.open('/CRUD-Teste/Server/Cliente/cadastra.php', '_top')"><br><br>
-            <input type="button" value="Consultar Cliente" class="botao-home" onclick="window.open('/CRUD-Teste/Server/Cliente/consulta.php', '_top')"><br><br>
+            <input type="button" value="Cadastrar Cliente" class="botao-home" onclick="window.open('/CRUD-Teste-PHP/Server/Cliente/cadastra.php', '_top')"><br><br>
+            <input type="button" value="Consultar Cliente" class="botao-home" onclick="window.open('/CRUD-Teste-PHP/Server/Cliente/consulta.php', '_top')"><br><br>
             <?php
                 if ($_SESSION['permissao'] == 2) {
                     echo '<a class="btn btn-light-home" href="../User/cadastrar-usuario.php?flag='.base64_encode($_SESSION['idUser']).'">Cadastrar Usuário</a>';
@@ -36,7 +36,7 @@ $id = $_SESSION['idUser'];
             ?>
         </form>
     </div>
-    <script src="/CRUD-Teste/Client/Js/script.js"></script>
+    <script src="/CRUD-Teste-PHP/Client/Js/script.js"></script>
 </body>
 </html>
 

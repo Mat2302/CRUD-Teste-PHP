@@ -28,8 +28,8 @@ $result = selectNameClientById($idCliente);
     <div class="container-busca-endereco">
             <h2 class='endereco-H2'>CRUD - Endereços</h2>
             <form>
-                <input type="button" value="Cadastrar Endereço" class="botao-endereco" onclick="window.open('/CRUD-Teste/Server/Endereco/cadastra-endereco.php?idCliente=<?php echo base64_encode($idCliente)?>', '_top')"><br><br>
-                <input type="button" value="Consultar Endereço" class="botao-endereco" onclick="window.open('/CRUD-Teste/Server/Endereco/consulta-endereco.php?idCliente=<?php echo base64_encode($idCliente)?>', '_top')"><br><br>
+                <input type="button" value="Cadastrar Endereço" class="botao-endereco" onclick="window.open('/CRUD-Teste-PHP/Server/Endereco/cadastra-endereco.php?idCliente=<?php echo base64_encode($idCliente)?>', '_top')"><br><br>
+                <input type="button" value="Consultar Endereço" class="botao-endereco" onclick="window.open('/CRUD-Teste-PHP/Server/Endereco/consulta-endereco.php?idCliente=<?php echo base64_encode($idCliente)?>', '_top')"><br><br>
             </form>
         </div>
         <script href="./Js/script.js"></script>
