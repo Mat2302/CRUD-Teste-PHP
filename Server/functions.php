@@ -1,18 +1,10 @@
 <?php
 
-function mask($value, $mask) {
-    $maskared = "";
-    $aux = 0;
-    for ($i = 0; $i <= (strlen($mask) - 1); ++$i) {
-        if ($mask[$i] == "#") {
-            if (isset($value[$aux])) {
-                $maskared .= $value[$aux++];
-            }
-        } else if (isset($mask[$i])) {
-            $maskared .= $mask[$i];
-        }
+function verifyLogin($user, $pass) {
+    if (!isset($user) && !isset($pass))  {
+        header('location: ../../index.php');
+        exit;
     }
-    return $maskared;
 }
 
 function loginUser($user, $pass) {
@@ -38,7 +30,7 @@ function loginUser($user, $pass) {
             $_SESSION['idUser'] = $result['ID_USER'];
             $_SESSION['permissao'] = $result['PERMISSAO'];
             $_SESSION['username'] = $result['NOME_USUARIO'];
-            header('location: ../Server/Cliente/home-cliente.php');
+            header('location: /CRUD-Teste-PHP/Client/Pages/Cliente/home-cliente.php');
             exit;
         }
         
@@ -50,27 +42,38 @@ function loginUser($user, $pass) {
 function createUser($username, $user, $pass, $permissao) {
     try {
         include('connect.php');
-        $stmt = $pdo->prepare('INSERT INTO Users (USUARIO, NOME_USUARIO, SENHA, PERMISSAO)
-                               VALUES (:user, :username, :pass, :permissao)');
-        $stmt->bindParam(":user", $user);
-        $stmt->bindParam(":username", $username);
-        $stmt->bindParam(":pass", $pass);
-        $stmt->bindParam(":permissao", $permissao);
-        
-        if ($stmt->execute()) {
-            echo '<p align="center">Usuário cadastrado com sucesso!</p>';
+        $result = selectUser();
+        $flag = 1;
+
+        foreach ($result as $linha) {
+            if (strcmp($user, $linha['USUARIO']) == 0) {
+                echo '<p align="center">Usuário já existente, não foi possível cadastrar!</p>';
+                $flag = 0;
+            }
         }
+
+        if ($flag == 1) {
+            $stmt = $pdo->prepare('INSERT INTO Users (USUARIO, NOME_USUARIO, SENHA, PERMISSAO)
+                                   VALUES (:user, :username, :pass, :permissao)');
+            $stmt->bindParam(":user", $user);
+            $stmt->bindParam(":username", $username);
+            $stmt->bindParam(":pass", $pass);
+            $stmt->bindParam(":permissao", $permissao);
+            
+            if ($stmt->execute()) {
+                echo '<p align="center">Usuário cadastrado com sucesso!</p>';
+            }
+    }
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
 }
 
-function createClient($idUser, $nome, $cpf, $rg, $email, $telefoneUm, $telefoneDois, $dataNascimento) {
+function createClient($nome, $cpf, $rg, $email, $telefoneUm, $telefoneDois, $dataNascimento, $idUser) {
     try {
         include('connect.php');
-        $stmt = $pdo->prepare('INSERT INTO Clientes (ID_USER, NOME, CPF, RG, EMAIL, TELEFONE_UM, TELEFONE_DOIS, DATA_DE_NASCIMENTO) 
-                               VALUES (:idUser, :nome, :cpf, :rg, :email, :telefoneUm, :telefoneDois, :dataNascimento)');
-        $stmt->bindParam(':idUser', $idUser);
+        $stmt = $pdo->prepare('INSERT INTO Clientes (NOME, CPF, RG, EMAIL, TELEFONE_UM, TELEFONE_DOIS, DATA_DE_NASCIMENTO, ID_USER) 
+                               VALUES (:nome, :cpf, :rg, :email, :telefoneUm, :telefoneDois, :dataNascimento, :idUser)');
         $stmt->bindParam(':nome', $nome);
         $stmt->bindParam(':cpf', $cpf);
         $stmt->bindParam(':rg', $rg);
@@ -78,17 +81,14 @@ function createClient($idUser, $nome, $cpf, $rg, $email, $telefoneUm, $telefoneD
         $stmt->bindParam(':telefoneUm', $telefoneUm);
         $stmt->bindParam(':telefoneDois', $telefoneDois);
         $stmt->bindParam(':dataNascimento', $dataNascimento);
-
-        if ($stmt->execute()) {
-            $mensagem = "Cadastro realizado com sucesso!";
-            echo "<script>mostrarPopup('$mensagem');</script>";
-        }
+        $stmt->bindParam(':idUser', $idUser);
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
 }
 
-function createAddress($idCliente, $rua, $numero, $cep, $bairro, $cidade, $estado, $pais, $principal, $comum, $mensagem) {
+function createAddress($idCliente, $rua, $numero, $cep, $bairro, $cidade, $estado, $pais, $principal, $comum) {
     include('connect.php');
     try {
         $stmt = $pdo->prepare('INSERT INTO Endereco (ID_CLIENTE, RUA, NUMERO, CEP, BAIRRO, CIDADE, ESTADO, PAIS,
@@ -104,9 +104,7 @@ function createAddress($idCliente, $rua, $numero, $cep, $bairro, $cidade, $estad
         $stmt->bindParam(":pais", $pais);
         $stmt->bindParam(":principal", $principal);
         $stmt->bindParam(":comum", $comum);
-        if ($stmt->execute()) {
-            echo "<script>mostrarPopup('$mensagem');</script>";
-        }
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
@@ -143,13 +141,18 @@ function selectPermission($idUser) {
 function selectClientByName($nome, $idUser, $permissao) {
     try {
         include('connect.php');
-        if ($permissao == 2) {
+        if ($permissao == 2 && empty($nome)) {
             $stmt = $pdo->prepare('SELECT * FROM Clientes ORDER BY ATIVO DESC');
-        } else if (empty($nome)) {
-            $stmt = $pdo->prepare('SELECT * FROM Clientes WHERE ATIVO = 1 AND ID_USER = :idUser');
+        } else if ($permissao == 2) {
+            $stmt = $pdo->prepare('SELECT * FROM Clientes WHERE NOME = :nome ORDER BY ATIVO DESC');
+            $stmt->bindparam(":nome", $nome);
+        }
+        
+        if ($permissao == 1 && empty($nome)) {
+            $stmt = $pdo->prepare('SELECT * FROM Clientes WHERE ID_USER = :idUser ORDER BY ATIVO DESC');
             $stmt->bindParam(":idUser", $idUser);
-        } else {
-            $stmt = $pdo->prepare('SELECT * FROM Clientes WHERE NOME LIKE :nome AND ATIVO = 1 AND ID_USER = :idUser');
+        } else if ($permissao == 1) {
+            $stmt = $pdo->prepare('SELECT * FROM Clientes WHERE NOME = :nome AND ID_USER = :idUser ORDER BY ATIVO DESC');
             $stmt->bindParam(":nome", $nome);
             $stmt->bindParam(":idUser", $idUser);
         }
@@ -261,38 +264,28 @@ function alterClient($nomeUpd, $cpfUpd, $rgUpd, $emailUpd, $telefoneUmUpd, $tele
         $stmt->bindParam(":telefoneDois", $telefoneDoisUpd);
         $stmt->bindParam(":dataNascimento", $dataNascimentoUpd);
         $stmt->bindParam(":idCliente", $idCliente);
-        if ($stmt->execute()) {
-            header('location: consulta.php');
-            exit;
-        }
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
 }
 
-function alterAddress($ruaUpd, $numeroUpd, $bairroUpd, $cidadeUpd, $estadoUpd, $paisUpd, $cepUpd, $idEndereco, $idCliente, $flag) {
+function alterAddress($ruaUpd, $numeroUpd, $bairroUpd, $cidadeUpd, $estadoUpd, $paisUpd, $cepUpd, $idEndereco, $idCliente) {
     try {
         include('connect.php');
-        if ($flag == 1) {
-            $stmt = $pdo->prepare('UPDATE Endereco SET RUA = :rua, NUMERO = :numero, BAIRRO = :bairro, CIDADE = :cidade,
-                                    ESTADO = :estado, PAIS = :pais, CEP = :cep WHERE ID_ENDERECO = :idEndereco
-                                    AND ID_CLIENTE = :idCliente');
-            $stmt->bindParam(":rua", $ruaUpd);
-            $stmt->bindParam(":numero", $numeroUpd);
-            $stmt->bindParam(":bairro", $bairroUpd);
-            $stmt->bindParam(":cidade", $cidadeUpd);
-            $stmt->bindParam(":estado", $estadoUpd);
-            $stmt->bindParam(":pais", $paisUpd);
-            $stmt->bindParam(":cep", $cepUpd);
-            $stmt->bindParam(":idEndereco", $idEndereco);
-            $stmt->bindParam(":idCliente", $idCliente);
-            if ($stmt->execute()) {
-                header('location: consulta-endereco.php?idCliente='.base64_encode($idCliente).'');
-                exit;
-            }
-        } else {
-            echo '<p align="center">Já existe um endereço igual para esse cliente!</p>';
-        }
+        $stmt = $pdo->prepare('UPDATE Endereco SET RUA = :rua, NUMERO = :numero, BAIRRO = :bairro, CIDADE = :cidade,
+                                ESTADO = :estado, PAIS = :pais, CEP = :cep WHERE ID_ENDERECO = :idEndereco
+                                AND ID_CLIENTE = :idCliente');
+        $stmt->bindParam(":rua", $ruaUpd);
+        $stmt->bindParam(":numero", $numeroUpd);
+        $stmt->bindParam(":bairro", $bairroUpd);
+        $stmt->bindParam(":cidade", $cidadeUpd);
+        $stmt->bindParam(":estado", $estadoUpd);
+        $stmt->bindParam(":pais", $paisUpd);
+        $stmt->bindParam(":cep", $cepUpd);
+        $stmt->bindParam(":idEndereco", $idEndereco);
+        $stmt->bindParam(":idCliente", $idCliente);
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
@@ -301,23 +294,16 @@ function alterAddress($ruaUpd, $numeroUpd, $bairroUpd, $cidadeUpd, $estadoUpd, $
 function alterMainAddress($idEndereco, $idEnderecoNovo, $idCliente) {
     try {
         include('connect.php');
-        if ($idEnderecoNovo) {
-            $stmt = $pdo->prepare('DELETE FROM Endereco WHERE ID_ENDERECO = :idEndereco AND ID_CLIENTE = :idCliente AND ENDERECO_PRINCIPAL = 1');
-            $stmt->bindParam(":idEndereco", $idEndereco);
-            $stmt->bindParam(":idCliente", $idCliente);
-            $stmt->execute();
-            
-            $stmt = $pdo->prepare('UPDATE Endereco SET ENDERECO_PRINCIPAL = 1, ENDERECO_COMUM = 0
-                            WHERE ID_ENDERECO = :idEnderecoNovo AND ID_CLIENTE = :idCliente');
-            $stmt->bindParam(":idEnderecoNovo", $idEnderecoNovo);
-            $stmt->bindParam(":idCliente", $idCliente);
-            if ($stmt->execute()) {
-                header('location: consulta-endereco.php?idCliente='.base64_encode($idCliente).'');
-                exit;
-            }
-        } else {
-            echo '<p align="center">Por favor, selecione um endereço comum para prosseguir com a exclusão!</p>';
-        }
+        $stmt = $pdo->prepare('DELETE FROM Endereco WHERE ID_ENDERECO = :idEndereco AND ID_CLIENTE = :idCliente AND ENDERECO_PRINCIPAL = 1');
+        $stmt->bindParam(":idEndereco", $idEndereco);
+        $stmt->bindParam(":idCliente", $idCliente);
+        $stmt->execute();
+        
+        $stmt = $pdo->prepare('UPDATE Endereco SET ENDERECO_PRINCIPAL = 1, ENDERECO_COMUM = 0
+                        WHERE ID_ENDERECO = :idEnderecoNovo AND ID_CLIENTE = :idCliente');
+        $stmt->bindParam(":idEnderecoNovo", $idEnderecoNovo);
+        $stmt->bindParam(":idCliente", $idCliente);
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }
@@ -343,11 +329,7 @@ function disableClient($idCliente) {
         include('connect.php');
         $stmt = $pdo->prepare('UPDATE Clientes SET ATIVO = 0 WHERE ID_CLIENTE = :idCliente');
         $stmt->bindParam(":idCliente", $idCliente);
-        
-        if ($stmt->execute()) {
-            header('location: consulta.php');
-            exit;
-        }
+        $stmt->execute();
     } catch (PDOException $e) {
         echo $e->getMessage();
     }

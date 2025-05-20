@@ -183,21 +183,30 @@ button {
 }
 
 .btn-light {
-    max-width: 50%;
-    margin-left: 10px;
+    max-width: 40%;
     margin-right: 10px;
+    margin-top: 3px;
     --bs-btn-bg: #B3B3B3;
     --bs-btn-color: var(--bs-lightgray);
     --bs-btn-border-color: #B3B3B3;
 }
 
-.btn-light {
-    max-width: 50%;
-    margin-left: 10px;
+.btn-light-read {
+    max-width: 28%;
     margin-right: 10px;
+    margin-top: 3px;
     --bs-btn-bg: #B3B3B3;
     --bs-btn-color: var(--bs-lightgray);
     --bs-btn-border-color: #B3B3B3;
+}
+
+.btn-secundary-read {
+    max-width: 28%;
+    margin-right: 10px;
+    margin-top: 3px;
+    --bs-btn-bg: #848784;
+    --bs-btn-color: var(--bs-lightgray);
+    --bs-btn-border-color: #848784;
 }
 
 a.btn-light-home {
@@ -216,12 +225,24 @@ a.btn-light-home:hover {
     background-color: #B3B3B3;
 }
 
+.btn-light-read:hover {
+    background-color: #848784;
+}
+
+.btn-secundary-read:hover {
+    background-color: #B3B3B3;
+}
+
 .btn-light-add {
     --bs-btn-bg: #B3B3B3;
     --bs-btn-hover-bg: #848784;
 }
 
 .btn-secundary {
+    --bs-btn-bg: #848784;
+}
+
+button.btn-secundary {
     --bs-btn-bg: #848784;
 }
 
@@ -239,6 +260,10 @@ a.btn-light-home:hover {
     background-color: #848784;
     border: 2px solid black;
     text-align: center;
+}
+
+.consulta-usuario {
+    margin-top: 5rem;
 }
 
 .criar-conta {
